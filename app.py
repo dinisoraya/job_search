@@ -13,8 +13,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 # ─── Inisialisasi Flask & Config untuk SQLAlchemy ─────────────────────────────
 app = Flask(__name__)
-app.secret_key = 'your-very-secret-key'  # Ganti dengan secret key acak Anda
-
+app.secret_key = 'your-very-secret-key'  
 app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root@localhost/jobsearch"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
@@ -72,14 +71,6 @@ df['title_role'] = df['Job Title'].fillna('') + ' ' + df['Role'].fillna('')
 vectorizer = TfidfVectorizer(tokenizer=tokenize, stop_words=None)
 tfidf_matrix = vectorizer.fit_transform(df['title_role'])
 
-def highlight_keywords(text, keywords):
-    if not text:
-        return text
-    def replacer(match):
-        return f"<mark>{match.group(0)}</mark>"
-    pattern = re.compile(r'\b(' + '|'.join(map(re.escape, keywords)) + r')\b', flags=re.IGNORECASE)
-    return pattern.sub(replacer, text)
-
 def search_with_tfidf(query, df, tfidf_matrix, vectorizer):
     query_terms = tokenize(query)
     if not query_terms:
@@ -89,17 +80,29 @@ def search_with_tfidf(query, df, tfidf_matrix, vectorizer):
     similarities = cosine_similarity(query_vec, tfidf_matrix).flatten()
     top_indices = similarities.argsort()[::-1]
 
+    feature_names = vectorizer.get_feature_names_out()
     results = []
+
     for idx in top_indices:
         score = similarities[idx]
         if score <= 0:
             break
+
         row = df.iloc[idx]
+        doc_vec = tfidf_matrix[idx]
+        doc_tfidf = dict(zip(
+            [feature_names[i] for i in doc_vec.indices],
+            doc_vec.data
+        ))
+
+        matched_terms = {}
+        for term in query_terms:
+            if term in doc_tfidf:
+                matched_terms[term] = round(float(doc_tfidf[term]), 4)
+
         results.append({
             "Job Title": row['Job Title'],
-            "Job Title Highlight": highlight_keywords(row['Job Title'], query_terms),
             "Role": row['Role'],
-            "Role Highlight": highlight_keywords(row['Role'], query_terms),
             "Company": row['Company'],
             "Country": row['Country'],
             "Qualifications": row['Qualifications'],
@@ -110,12 +113,12 @@ def search_with_tfidf(query, df, tfidf_matrix, vectorizer):
             "Skills": row['skills'],
             "Benefits": row['Benefits'],
             "Contact": row['Contact'],
-            "Score": round(float(score), 4)
+            "Score": round(float(score), 4),
+            "Matched Terms": matched_terms
         })
     return results
 
 # ─── ROUTES ─────────────────────────────────────────────────────────────────────
-
 @app.route('/')
 @login_required
 def home():
@@ -221,24 +224,6 @@ def search():
         page=page,
         total_pages=total_pages
     )
-
-@app.route('/search_stats', methods=['POST'])
-@login_required
-def search_stats():
-    data = request.get_json()
-    query = data.get('query', '').strip()
-    if not query:
-        return jsonify({})
-
-    results = search_with_tfidf(query, df, tfidf_matrix, vectorizer)
-
-    role_counts = {}
-    for r in results:
-        role = r.get('Role', 'Unknown') or 'Unknown'
-        role_counts[role] = role_counts.get(role, 0) + 1
-
-    return jsonify(role_counts)
-
 
 # ─── Buat Tabel Jika Belum Ada & Run App ────────────────────────────────────────
 if __name__ == '__main__':

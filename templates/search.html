@@ -1,7 +1,5 @@
-{% extends "base.html" %}
-{% block title %}Register | JobSearch{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Register | JobSearch{% endblock %} {%
+block content %}
 <div class="container py-5">
   <!-- SEARCH BAR -->
   <div class="row justify-content-center mb-4">
@@ -22,165 +20,179 @@
   </div>
 
   {% if not query %}
-    <!-- Welcome Message -->
-    <div class="row justify-content-center">
-      <div class="col-md-8">
-        <div class="card shadow-sm">
-          <div class="card-body text-center">
-            <h3 class="card-title mb-4 text-primary">
-              Welcome, {{ current_user.username }}!
-            </h3>
-            <p class="mb-4">
-              Start typing a job title (e.g. “Data Analyst”) above and press “Search”.
-            </p>
-          </div>
+  <!-- Welcome Message -->
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow-sm">
+        <div class="card-body text-center">
+          <h3 class="card-title mb-4 text-primary">
+            Welcome, {{ current_user.username }}!
+          </h3>
+          <p class="mb-4">
+            Start typing a job title (e.g. “Data Analyst”) above and press
+            “Search”.
+          </p>
         </div>
       </div>
     </div>
+  </div>
 
   {% elif query and not results %}
-    <!-- No Results -->
-    <div class="alert alert-warning text-center">
-      No matching jobs found for "<strong>{{ query }}</strong>".
-    </div>
+  <!-- No Results -->
+  <div class="alert alert-warning text-center">
+    No matching jobs found for "<strong>{{ query }}</strong>".
+  </div>
 
   {% else %}
-    <!-- Search Results Info -->
-    <div class="alert alert-info d-flex justify-content-between align-items-center">
-      <div>
-        Showing
-        <span class="badge bg-primary">{{ results|length }}</span> result(s) on page
-        <span class="badge bg-primary">{{ page }}</span> of
-        <span class="badge bg-primary">{{ total_pages }}</span>
-      </div>
+  <!-- Search Results Info -->
+  <div
+    class="alert alert-info d-flex justify-content-between align-items-center"
+  >
+    <div>
+      Showing
+      <span class="badge bg-primary">{{ results|length }}</span> result(s) on
+      page <span class="badge bg-primary">{{ page }}</span> of
+      <span class="badge bg-primary">{{ total_pages }}</span>
     </div>
+  </div>
 
-    <div class="row">
-      <!-- Job Results List -->
-      <div class="col-12">
-        {% for job in results %}
-        <div class="card mb-4 shadow-sm">
-          <div class="card-header bg-primary text-white">
-            <h5 class="mb-0">{{ job['Job Title'] }}</h5>
-            <small class="text-light">
-              Score: <span class="badge bg-light text-primary">{{ job['Score'] }}</span>
-            </small>
-          </div>
-          <div class="card-body bg-white">
-            <p>
-              <strong class="text-primary">Role:</strong> {{ job['Role'] }} |
-              <strong class="text-primary">Company:</strong> {{ job['Company'] }}
-            </p>
-            <p>
-              <strong class="text-primary">Country:</strong> {{ job['Country'] }} |
-              <strong class="text-primary">Work Type:</strong> {{ job['Work Type'] }}
-            </p>
-            <p>
-              <strong class="text-primary">Experience:</strong> {{ job['Experience'] }} |
-              <strong class="text-primary">Salary:</strong> {{ job['Salary Range'] }}
-            </p>
-            <p>
-              <strong class="text-primary">Qualifications:</strong> {{ job['Qualifications'] }}
-            </p>
-            <p>
-              <strong class="text-primary">Skills:</strong> {{ job['Skills'] }}
-            </p>
-            <p>
-              <strong class="text-primary">Responsibilities:</strong> {{ job['Responsibilities'] }}
-            </p>
-            <p><strong class="text-primary">Benefits:</strong></p>
-            <ul>
-              {% set clean_str = job['Benefits'].replace("'", "").strip('{}') %}
-              {% for benefit in clean_str.split(',') %}
-                <li>{{ benefit.strip() }}</li>
-              {% endfor %}
-            </ul>
-            <p>
-              <strong class="text-primary">Contact:</strong> {{ job['Contact'] }}
-            </p>
-          </div>
+  <div class="row">
+    <!-- Job Results List -->
+    <div class="col-12">
+      {% for job in results %}
+      <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">{{ job['Job Title'] }}</h5>
+          <small class="text-light">
+            Score:
+            <span class="badge bg-light text-primary">{{ job['Score'] }}</span>
+          </small>
         </div>
-        {% endfor %}
-      </div>
-    </div>
+        <div class="card-body bg-white">
+          <p>
+            <strong class="text-primary">Role:</strong> {{ job['Role'] }} |
+            <strong class="text-primary">Company:</strong> {{ job['Company'] }}
+          </p>
+          <p>
+            <strong class="text-primary">Country:</strong> {{ job['Country'] }}
+            | <strong class="text-primary">Work Type:</strong> {{ job['Work
+            Type'] }}
+          </p>
+          <p>
+            <strong class="text-primary">Experience:</strong> {{
+            job['Experience'] }} |
+            <strong class="text-primary">Salary:</strong> {{ job['Salary Range']
+            }}
+          </p>
+          <p>
+            <strong class="text-primary">Qualifications:</strong> {{
+            job['Qualifications'] }}
+          </p>
+          <p>
+            <strong class="text-primary">Skills:</strong> {{ job['Skills'] }}
+          </p>
+          <p>
+            <strong class="text-primary">Responsibilities:</strong> {{
+            job['Responsibilities'] }}
+          </p>
+          <p><strong class="text-primary">Benefits:</strong></p>
+          <ul>
+            {% set clean_str = job['Benefits'].replace("'", "").strip('{}') %}
+            {% for benefit in clean_str.split(',') %}
+            <li>{{ benefit.strip() }}</li>
+            {% endfor %}
+          </ul>
+          <p>
+            <strong class="text-primary">Contact:</strong> {{ job['Contact'] }}
+          </p>
 
-    <!-- Pagination -->
-    <nav aria-label="Page navigation">
-      <ul class="pagination justify-content-center">
-        {% if page > 1 %}
-        <li class="page-item">
-          <form method="post" class="d-inline">
-            <input type="hidden" name="query" value="{{ query }}" />
-            <input type="hidden" name="page" value="{{ page - 1 }}" />
-            <button class="page-link btn btn-outline-primary">Previous</button>
-          </form>
-        </li>
-        {% else %}
-        <li class="page-item disabled">
-          <span class="page-link btn btn-outline-secondary">Previous</span>
-        </li>
-        {% endif %}
-
-        {% set start_page = page - 2 if page - 2 > 1 else 1 %}
-        {% set end_page = page + 2 if page + 2 < total_pages else total_pages %}
-
-        {% if start_page > 1 %}
-        <li class="page-item">
-          <form method="post" class="d-inline">
-            <input type="hidden" name="query" value="{{ query }}" />
-            <input type="hidden" name="page" value="1" />
-            <button class="page-link btn btn-outline-primary">1</button>
-          </form>
-        </li>
-        {% if start_page > 2 %}
-        <li class="page-item disabled">
-          <span class="page-link">&hellip;</span>
-        </li>
-        {% endif %}
-        {% endif %}
-
-        {% for p in range(start_page, end_page + 1) %}
-        <li class="page-item {% if p == page %}active{% endif %}">
-          <form method="post" class="d-inline">
-            <input type="hidden" name="query" value="{{ query }}" />
-            <input type="hidden" name="page" value="{{ p }}" />
-            <button class="page-link btn {% if p == page %}btn-primary{% else %}btn-outline-primary{% endif %}">
-              {{ p }}
-            </button>
-          </form>
-        </li>
-        {% endfor %}
-
-        {% if end_page < total_pages %}
-          {% if end_page < total_pages - 1 %}
-          <li class="page-item disabled">
-            <span class="page-link">&hellip;</span>
-          </li>
+          {% if job["Matched Terms"] %}
+          <div class="explanation mt-2 text-muted small">
+            <strong>Matched terms:</strong>
+            {% for term, tfidf in job["Matched Terms"].items() %}
+            <span class="badge bg-info text-dark me-1"
+              >{{ term }} ({{ '%.3f'|format(tfidf) }})</span
+            >
+            {% endfor %}
+          </div>
           {% endif %}
-          <li class="page-item">
-            <form method="post" class="d-inline">
-              <input type="hidden" name="query" value="{{ query }}" />
-              <input type="hidden" name="page" value="{{ total_pages }}" />
-              <button class="page-link btn btn-outline-primary">{{ total_pages }}</button>
-            </form>
-          </li>
-        {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
 
-        {% if page < total_pages %}
-        <li class="page-item">
-          <form method="post" class="d-inline">
-            <input type="hidden" name="query" value="{{ query }}" />
-            <input type="hidden" name="page" value="{{ page + 1 }}" />
-            <button class="page-link btn btn-outline-primary">Next</button>
-          </form>
-        </li>
-        {% else %}
-        <li class="page-item disabled">
-          <span class="page-link btn btn-outline-secondary">Next</span>
-        </li>
-        {% endif %}
-      </ul>
-    </nav>
+  <!-- Pagination -->
+  <nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+      {% if page > 1 %}
+      <li class="page-item">
+        <form method="post" class="d-inline">
+          <input type="hidden" name="query" value="{{ query }}" />
+          <input type="hidden" name="page" value="{{ page - 1 }}" />
+          <button class="page-link btn btn-outline-primary">Previous</button>
+        </form>
+      </li>
+      {% else %}
+      <li class="page-item disabled">
+        <span class="page-link btn btn-outline-secondary">Previous</span>
+      </li>
+      {% endif %} {% set start_page = page - 2 if page - 2 > 1 else 1 %} {% set
+      end_page = page + 2 if page + 2 < total_pages else total_pages %} {% if
+      start_page > 1 %}
+      <li class="page-item">
+        <form method="post" class="d-inline">
+          <input type="hidden" name="query" value="{{ query }}" />
+          <input type="hidden" name="page" value="1" />
+          <button class="page-link btn btn-outline-primary">1</button>
+        </form>
+      </li>
+      {% if start_page > 2 %}
+      <li class="page-item disabled">
+        <span class="page-link">&hellip;</span>
+      </li>
+      {% endif %} {% endif %} {% for p in range(start_page, end_page + 1) %}
+      <li class="page-item {% if p == page %}active{% endif %}">
+        <form method="post" class="d-inline">
+          <input type="hidden" name="query" value="{{ query }}" />
+          <input type="hidden" name="page" value="{{ p }}" />
+          <button
+            class="page-link btn {% if p == page %}btn-primary{% else %}btn-outline-primary{% endif %}"
+          >
+            {{ p }}
+          </button>
+        </form>
+      </li>
+      {% endfor %} {% if end_page < total_pages %} {% if end_page < total_pages
+      - 1 %}
+      <li class="page-item disabled">
+        <span class="page-link">&hellip;</span>
+      </li>
+      {% endif %}
+      <li class="page-item">
+        <form method="post" class="d-inline">
+          <input type="hidden" name="query" value="{{ query }}" />
+          <input type="hidden" name="page" value="{{ total_pages }}" />
+          <button class="page-link btn btn-outline-primary">
+            {{ total_pages }}
+          </button>
+        </form>
+      </li>
+      {% endif %} {% if page < total_pages %}
+      <li class="page-item">
+        <form method="post" class="d-inline">
+          <input type="hidden" name="query" value="{{ query }}" />
+          <input type="hidden" name="page" value="{{ page + 1 }}" />
+          <button class="page-link btn btn-outline-primary">Next</button>
+        </form>
+      </li>
+      {% else %}
+      <li class="page-item disabled">
+        <span class="page-link btn btn-outline-secondary">Next</span>
+      </li>
+      {% endif %}
+    </ul>
+  </nav>
   {% endif %}
 </div>
 
